@@ -161,6 +161,11 @@
                 <artifactId>drug-common</artifactId>
                 <version>${drug.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.yy</groupId>
+                <artifactId>drug-manage</artifactId>
+                <version>${drug.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -172,6 +177,7 @@
         <module>drug-quartz</module>
         <module>drug-generator</module>
         <module>drug-common</module>
+        <module>drug-manage</module>
     </modules>
     <packaging>pom</packaging>
 
