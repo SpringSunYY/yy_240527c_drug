@@ -26,12 +26,21 @@ public class SymptomInfo extends BaseEntity
     /** 药品 */
     @Excel(name = "药品")
     private Long drugId;
+    private String drugName;
 
     /** 状态 */
     @Excel(name = "状态")
     private String status;
 
-    public void setId(Long id) 
+    public String getDrugName() {
+        return drugName;
+    }
+
+    public void setDrugName(String drugName) {
+        this.drugName = drugName;
+    }
+
+    public void setId(Long id)
     {
         this.id = id;
     }

@@ -7,6 +7,13 @@ export function listDrugInfo(query) {
     method: 'get',
     params: query
   })
+}// 查询药物信息列表
+export function listDrugInfoAll(query) {
+  return request({
+    url: '/manage/drugInfo/listAll',
+    method: 'get',
+    params: query
+  })
 }
 
 // 查询药物信息详细

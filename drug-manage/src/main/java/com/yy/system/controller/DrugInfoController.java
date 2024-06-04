@@ -46,6 +46,12 @@ public class DrugInfoController extends BaseController
         return getDataTable(list);
     }
 
+    @GetMapping("/listAll")
+    public TableDataInfo listAll(DrugInfo drugInfo) {
+        List<DrugInfo> list = drugInfoService.selectDrugInfoList(drugInfo);
+        return getDataTable(list);
+    }
+
     /**
      * 导出药物信息列表
      */

@@ -17,6 +17,16 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="状态" prop="status">
+        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
+          <el-option
+            v-for="dict in dict.type.drug_status"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="创建人" prop="createBy">
         <el-input
           v-model="queryParams.createBy"
@@ -104,7 +114,11 @@
       <el-table-column label="编号" align="center" prop="id" />
       <el-table-column label="药物" align="center" prop="name" />
       <el-table-column label="描述" align="center" prop="remark" />
-      <el-table-column label="状态" align="center" prop="status" />
+      <el-table-column label="状态" align="center" prop="status">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.drug_status" :value="scope.row.status"/>
+        </template>
+      </el-table-column>
       <el-table-column label="创建人" align="center" prop="createBy" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
@@ -135,7 +149,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -153,6 +167,16 @@
         <el-form-item label="描述" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
         </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="form.status" placeholder="请选择状态">
+            <el-option
+              v-for="dict in dict.type.drug_status"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -167,6 +191,7 @@ import { listDrugInfo, getDrugInfo, delDrugInfo, addDrugInfo, updateDrugInfo } f
 
 export default {
   name: "DrugInfo",
+  dicts: ['drug_status'],
   data() {
     return {
       // 遮罩层

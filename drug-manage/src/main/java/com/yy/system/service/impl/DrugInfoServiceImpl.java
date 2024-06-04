@@ -2,6 +2,7 @@ package com.yy.system.service.impl;
 
 import java.util.List;
 import com.yy.common.utils.DateUtils;
+import com.yy.common.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.yy.system.mapper.DrugInfoMapper;
@@ -53,6 +54,7 @@ public class DrugInfoServiceImpl implements IDrugInfoService
     @Override
     public int insertDrugInfo(DrugInfo drugInfo)
     {
+        drugInfo.setCreateBy(SecurityUtils.getUsername());
         drugInfo.setCreateTime(DateUtils.getNowDate());
         return drugInfoMapper.insertDrugInfo(drugInfo);
     }

@@ -18,12 +18,25 @@
         />
       </el-form-item>
       <el-form-item label="药品" prop="drugId">
-        <el-input
-          v-model="queryParams.drugId"
-          placeholder="请输入药品"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-select v-model="queryParams.drugId" filterable placeholder="请选择">
+          <el-option
+            v-for="item in drugInfoList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="状态" prop="status">
+        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
+          <el-option
+            v-for="dict in dict.type.drug_status"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="创建人" prop="createBy">
         <el-input
@@ -70,7 +83,8 @@
           size="mini"
           @click="handleAdd"
           v-hasPermi="['manage:symptomInfo:add']"
-        >新增</el-button>
+        >新增
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -81,7 +95,8 @@
           :disabled="single"
           @click="handleUpdate"
           v-hasPermi="['manage:symptomInfo:edit']"
-        >修改</el-button>
+        >修改
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -92,7 +107,8 @@
           :disabled="multiple"
           @click="handleDelete"
           v-hasPermi="['manage:symptomInfo:remove']"
-        >删除</el-button>
+        >删除
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -102,19 +118,24 @@
           size="mini"
           @click="handleExport"
           v-hasPermi="['manage:symptomInfo:export']"
-        >导出</el-button>
+        >导出
+        </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="symptomInfoList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="编号" align="center" prop="id" />
-      <el-table-column label="症状" align="center" prop="name" />
-      <el-table-column label="药品" align="center" prop="drugId" />
-      <el-table-column label="描述" align="center" prop="remark" />
-      <el-table-column label="状态" align="center" prop="status" />
-      <el-table-column label="创建人" align="center" prop="createBy" />
+      <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="编号" align="center" prop="id"/>
+      <el-table-column label="症状" align="center" prop="name"/>
+      <el-table-column label="药品" align="center" prop="drugName"/>
+      <el-table-column label="描述" align="center" prop="remark"/>
+      <el-table-column label="状态" align="center" prop="status">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.drug_status" :value="scope.row.status"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="创建人" align="center" prop="createBy"/>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
@@ -133,18 +154,20 @@
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['manage:symptomInfo:edit']"
-          >修改</el-button>
+          >修改
+          </el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['manage:symptomInfo:remove']"
-          >删除</el-button>
+          >删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -157,13 +180,31 @@
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="症状" prop="name">
-          <el-input v-model="form.name" placeholder="请输入症状" />
+          <el-input v-model="form.name" placeholder="请输入症状"/>
         </el-form-item>
         <el-form-item label="药品" prop="drugId">
-          <el-input v-model="form.drugId" placeholder="请输入药品" />
+          <el-select v-model="form.drugId" filterable placeholder="请选择">
+            <el-option
+              v-for="item in drugInfoList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="form.status" placeholder="请选择状态">
+            <el-option
+              v-for="dict in dict.type.drug_status"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="描述" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -175,12 +216,21 @@
 </template>
 
 <script>
-import { listSymptomInfo, getSymptomInfo, delSymptomInfo, addSymptomInfo, updateSymptomInfo } from "@/api/manage/symptomInfo";
+import {
+  listSymptomInfo,
+  getSymptomInfo,
+  delSymptomInfo,
+  addSymptomInfo,
+  updateSymptomInfo
+} from '@/api/manage/symptomInfo'
+import { listDrugInfoAll } from '@/api/manage/drugInfo'
 
 export default {
-  name: "SymptomInfo",
+  dicts: ['drug_status'],
+  name: 'SymptomInfo',
   data() {
     return {
+      drugInfoList: [],
       // 遮罩层
       loading: true,
       // 选中数组
@@ -196,7 +246,7 @@ export default {
       // 症状信息表格数据
       symptomInfoList: [],
       // 弹出层标题
-      title: "",
+      title: '',
       // 是否显示弹出层
       open: false,
       // 状态时间范围
@@ -220,49 +270,55 @@ export default {
       // 表单校验
       rules: {
         name: [
-          { required: true, message: "症状不能为空", trigger: "blur" }
+          { required: true, message: '症状不能为空', trigger: 'blur' }
         ],
         drugId: [
-          { required: true, message: "药品不能为空", trigger: "blur" }
+          { required: true, message: '药品不能为空', trigger: 'blur' }
         ],
         status: [
-          { required: true, message: "状态不能为空", trigger: "change" }
+          { required: true, message: '状态不能为空', trigger: 'change' }
         ],
         createBy: [
-          { required: true, message: "创建人不能为空", trigger: "blur" }
+          { required: true, message: '创建人不能为空', trigger: 'blur' }
         ],
         createTime: [
-          { required: true, message: "创建时间不能为空", trigger: "blur" }
-        ],
+          { required: true, message: '创建时间不能为空', trigger: 'blur' }
+        ]
       }
-    };
+    }
   },
   created() {
-    this.getList();
+    this.getList()
+    this.getDrugInfoList()
   },
   methods: {
+    getDrugInfoList() {
+      listDrugInfoAll().then(res => {
+        this.drugInfoList = res.rows
+      })
+    },
     /** 查询症状信息列表 */
     getList() {
-      this.loading = true;
-      this.queryParams.params = {};
+      this.loading = true
+      this.queryParams.params = {}
       if (null != this.daterangeCreateTime && '' != this.daterangeCreateTime) {
-        this.queryParams.params["beginCreateTime"] = this.daterangeCreateTime[0];
-        this.queryParams.params["endCreateTime"] = this.daterangeCreateTime[1];
+        this.queryParams.params['beginCreateTime'] = this.daterangeCreateTime[0]
+        this.queryParams.params['endCreateTime'] = this.daterangeCreateTime[1]
       }
       if (null != this.daterangeUpdateTime && '' != this.daterangeUpdateTime) {
-        this.queryParams.params["beginUpdateTime"] = this.daterangeUpdateTime[0];
-        this.queryParams.params["endUpdateTime"] = this.daterangeUpdateTime[1];
+        this.queryParams.params['beginUpdateTime'] = this.daterangeUpdateTime[0]
+        this.queryParams.params['endUpdateTime'] = this.daterangeUpdateTime[1]
       }
       listSymptomInfo(this.queryParams).then(response => {
-        this.symptomInfoList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      });
+        this.symptomInfoList = response.rows
+        this.total = response.total
+        this.loading = false
+      })
     },
     // 取消按钮
     cancel() {
-      this.open = false;
-      this.reset();
+      this.open = false
+      this.reset()
     },
     // 表单重置
     reset() {
@@ -275,72 +331,73 @@ export default {
         createBy: null,
         createTime: null,
         updateTime: null
-      };
-      this.resetForm("form");
+      }
+      this.resetForm('form')
     },
     /** 搜索按钮操作 */
     handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.getList();
+      this.queryParams.pageNum = 1
+      this.getList()
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.daterangeCreateTime = [];
-      this.daterangeUpdateTime = [];
-      this.resetForm("queryForm");
-      this.handleQuery();
+      this.daterangeCreateTime = []
+      this.daterangeUpdateTime = []
+      this.resetForm('queryForm')
+      this.handleQuery()
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
     handleAdd() {
-      this.reset();
-      this.open = true;
-      this.title = "添加症状信息";
+      this.reset()
+      this.open = true
+      this.title = '添加症状信息'
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-      this.reset();
+      this.reset()
       const id = row.id || this.ids
       getSymptomInfo(id).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改症状信息";
-      });
+        this.form = response.data
+        this.open = true
+        this.title = '修改症状信息'
+      })
     },
     /** 提交按钮 */
     submitForm() {
-      this.$refs["form"].validate(valid => {
+      this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
             updateSymptomInfo(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
+              this.$modal.msgSuccess('修改成功')
+              this.open = false
+              this.getList()
+            })
           } else {
             addSymptomInfo(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
+              this.$modal.msgSuccess('新增成功')
+              this.open = false
+              this.getList()
+            })
           }
         }
-      });
+      })
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const ids = row.id || this.ids;
+      const ids = row.id || this.ids
       this.$modal.confirm('是否确认删除症状信息编号为"' + ids + '"的数据项？').then(function() {
-        return delSymptomInfo(ids);
+        return delSymptomInfo(ids)
       }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
+        this.getList()
+        this.$modal.msgSuccess('删除成功')
+      }).catch(() => {
+      })
     },
     /** 导出按钮操作 */
     handleExport() {
@@ -349,5 +406,5 @@ export default {
       }, `symptomInfo_${new Date().getTime()}.xlsx`)
     }
   }
-};
+}
 </script>
