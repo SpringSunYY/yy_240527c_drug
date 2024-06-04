@@ -60,6 +60,10 @@
             <groupId>com.yy</groupId>
             <artifactId>drug-generator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.yy</groupId>
+            <artifactId>drug-manage</artifactId>
+        </dependency>
 
     </dependencies>
 
