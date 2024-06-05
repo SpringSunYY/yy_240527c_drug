@@ -48,6 +48,7 @@ public class SymptomInfoServiceImpl implements ISymptomInfoService {
     public List<SymptomInfo> selectSymptomInfoList(SymptomInfo symptomInfo) {
         List<SymptomInfo> symptomInfos = symptomInfoMapper.selectSymptomInfoList(symptomInfo);
         for (SymptomInfo info : symptomInfos) {
+            //查询药品信息 获取药品名字
             DrugInfo drugInfo = drugInfoService.selectDrugInfoById(info.getDrugId());
             if (StringUtils.isNotNull(drugInfo)) {
                 info.setDrugName(drugInfo.getName());

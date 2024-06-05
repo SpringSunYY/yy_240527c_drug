@@ -1,3 +1,16 @@
+# 药品管理系统 若依框架 软件开发定制
+
+
+## 联系方式+v
+
+
+SpringSun_YY
+
+## 视频地址
+
+【药品管理系统 若依框架 软件开发定制】https://www.bilibili.com/video/BV1zjGKezEqj?vd_source=a4c1f9a58f1a8dd2e581c0f88e037fca
+
+
 <p align="center">
 	<img alt="logo" src="https://oscimg.oschina.net/oscnet/up-d3d0a9303e11d522a06cd263f3079027715.png">
 </p>
